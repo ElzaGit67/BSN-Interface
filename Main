@@ -32,3 +32,5 @@ function LoadCustomInstance(assetId, parent)
 end
 
 local Gui = LoadCustomInstance(76797797169020, PlayerGui)
+
+loadstring(game:HttpGet("https://raw.githubusercontent.com/ElzaGit67/BSN-Interface/refs/heads/main/MAINClient"))(Gui)
