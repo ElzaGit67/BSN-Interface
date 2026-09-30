@@ -1,0 +1,93 @@
+local Players = game:GetService("Players")
+local BSNUi = ...
+local Menu = BSNUi:WaitForChild("Menu")
+local Frames = BSNUi:WaitForChild("Frames")
+
+local StatsFrame = Frames:WaitForChild("Stats")
+
+local TweenService = game:GetService("TweenService")
+
+local function tween(UI, style)
+	if style == "Hover" then
+		local tweeninfo = TweenInfo.new(0.4, Enum.EasingStyle.Quart)
+		local hovering = UI:GetAttribute("Hovering")
+		local target = {Size = hovering and UDim2.new(1, 0, 0, 5) or UDim2.new(0, 0, 0, 5)}
+		TweenService:Create(UI, tweeninfo, target):Play()
+	elseif style == "Frame" then
+		local tweeninfoVisible = TweenInfo.new(0.8, Enum.EasingStyle.Quart)
+		local tweeninfoInvisible = TweenInfo.new(0.9)
+		local Visibility = UI:GetAttribute("Visibility")
+		local target = {Position = Visibility and UDim2.new(0.5, 0, 0.5, 0) or UDim2.new(1.5, 0, 0.5, 0)}
+		TweenService:Create(UI, Visibility and tweeninfoVisible or tweeninfoInvisible, target):Play()
+	end
+end
+
+
+function initiateStats()
+	local ScrollingFrame = StatsFrame:WaitForChild("ScrollingFrame")
+	local Frame = StatsFrame:WaitForChild("Frame")
+	
+	local Back = StatsFrame:WaitForChild("Back")
+	ScrollingFrame.Visible = true
+	Back.Visible = false
+	
+	Back.MouseButton1Click:Connect(function()
+		ScrollingFrame.Visible = true
+		for _, frame in pairs(Frame:GetChildren()) do
+			if frame:IsA("Frame") then
+				frame.Visible = false
+			end
+		end
+		Back.Visible = false
+	end)
+	
+	for _, stat in pairs(ScrollingFrame:GetChildren()) do
+		if stat:IsA("TextButton") then
+			stat.MouseButton1Click:Connect(function()
+				local FrameStat = Frame:FindFirstChild(stat.Name)
+				if FrameStat then
+					FrameStat.Visible = true
+					Back.Visible = true
+					ScrollingFrame.Visible = false
+				end
+			end)
+		end
+	end
+end
+
+function initiateButtons()
+	for _, Button in pairs(Menu:GetChildren()) do
+		if Button:IsA("TextButton") then
+			local HoverFrame = Button:WaitForChild("Frame")
+			Button.MouseMoved:Connect(function()
+				HoverFrame:SetAttribute("Hovering", true)
+				tween(HoverFrame, "Hover")
+			end)
+			
+			Button.MouseLeave:Connect(function()
+				HoverFrame:SetAttribute("Hovering", false)
+				tween(HoverFrame, "Hover")
+			end)
+			
+			Button.MouseButton1Click:Connect(function()
+				local Frame = Frames:FindFirstChild(Button.Name)
+				if Frame then
+					local Visibility = Frame:GetAttribute("Visibility")
+					for _, frame in pairs(Frames:GetChildren()) do
+						if frame == Frame then continue end
+						if frame:IsA("Frame") then
+							frame:SetAttribute("Visibility", false)
+							tween(frame, "Frame")
+						end
+					end
+					
+					Frame:SetAttribute("Visibility", not Visibility)
+					tween(Frame, "Frame")
+				end
+			end)
+		end
+	end
+end
+
+initiateButtons()
+initiateStats()
